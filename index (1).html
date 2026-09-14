@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warung Kuliner Nusantara - Order Online</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background-color: #f5f6fa;
+            color: #333;
+            line-height: 1.6;
+            padding-bottom: 100px; /* Ruang untuk floating cart */
+        }
+        header {
+            background: linear-gradient(135deg, #2e7d32, #4caf50);
+            color: white;
+            text-align: center;
+            padding: 2.5rem 1rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        header h1 {
+            margin-bottom: 0.5rem;
+            font-size: 2.5rem;
+        }
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        .menu-title {
+            text-align: center;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+        .menu-title::after {
+            content: '';
+            display: block;
+            width: 50px;
+            height: 4px;
+            background-color: #2e7d32;
+            margin: 0.5rem auto 0;
+            border-radius: 2px;
+        }
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+        .menu-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .menu-img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        .menu-info {
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+        .menu-name {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: #2c3e50;
+        }
+        .menu-desc {
+            font-size: 0.95rem;
+            color: #7f8c8d;
+            margin-bottom: 1rem;
+            flex-grow: 1;
+        }
+        .menu-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+        }
+        .menu-price {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #e67e22;
+        }
+        /* Custom Quantity Control */
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            background: #f1f2f6;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid #ddd;
+        }
+        .qty-btn {
+            background: none;
+            border: none;
+            width: 35px;
+            height: 35px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            color: #2e7d32;
+            transition: background 0.2s;
+        }
+        .qty-btn:hover {
+            background: #dcdde1;
+        }
+        .qty-input {
+            width: 40px;
+            text-align: center;
+            border: none;
+            background: transparent;
+            font-size: 1rem;
+            font-weight: bold;
+            color: #333;
+        }
+        /* Floating Order Bar */
+        .cart-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+        }
+        .cart-info {
+            display: flex;
+            flex-direction: column;
+        }
+        .total-items {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+        }
+        .total-price {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #e67e22;
+        }
+        .btn-order-wa {
+            background-color: #25d366;
+            color: white;
+            text-decoration: none;
+            padding: 0.8rem 1.8rem;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 1.05rem;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(37, 211, 102, 0.3);
+            transition: all 0.3s ease;
+        }
+        .btn-order-wa:hover {
+            background-color: #128c7e;
+            transform: translateY(-2px);
+        }
+        .btn-order-wa:disabled {
+            background-color: #bdc3c7;
+            color: #7f8c8d;
+            box-shadow: none;
+            cursor: not-allowed;
+            transform: none;
+        }
+        footer {
+            background-color: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 1.5rem 1rem;
+            margin-top: 4rem;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Warung Kuliner Nusantara</h1>
+        <p>Pilih menu favorit Anda dan pesan sekaligus via WhatsApp</p>
+    </header>
+
+    <div class="container">
+        <h2 class="menu-title">Menu Spesial Kami</h2>
+        
+        <div class="menu-grid">
+            <!-- Menu 1: Iwak Gatul -->
+            <div class="menu-card" data-id="1" data-name="Iwak Gatul Goreng Krispi" data-price="15000">
+                <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=600" alt="Iwak Gatul" class="menu-img">
+                <div class="menu-info">
+                    <div class="menu-name">Iwak Gatul Goreng Krispi</div>
+                    <div class="menu-desc">Ikan gatul segar pilihan digoreng garing dengan bumbu rempah. Gurih dan renyah!</div>
+                    <div class="menu-footer">
+                        <div class="menu-price">Rp 15.000</div>
+                        <div class="quantity-control">
+                            <button class="qty-btn minus">-</button>
+                            <input type="text" class="qty-input" value="0" readonly>
+                            <button class="qty-btn plus">+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Menu 2: Klepon -->
+            <div class="menu-card" data-id="2" data-name="Klepon Lumer Tradisional" data-price="10000">
+                <img src="https://images.unsplash.com/photo-1626132647523-66f5bf380027?auto=format&fit=crop&q=80&w=600" alt="Klepon" class="menu-img">
+                <div class="menu-info">
+                    <div class="menu-name">Klepon Lumer Tradisional</div>
+                    <div class="menu-desc">Kue ketan dengan isian gula merah cair yang pecah di mulut, ditaburi parutan kelapa.</div>
+                    <div class="menu-footer">
+                        <div class="menu-price">Rp 10.000</div>
+                        <div class="quantity-control">
+                            <button class="qty-btn minus">-</button>
+                            <input type="text" class="qty-input" value="0" readonly>
+                            <button class="qty-btn plus">+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Menu 3: Minuman 1 -->
+            <div class="menu-card" data-id="3" data-name="Es Dawet Ayu Gula Aren" data-price="8000">
+                <img src="https://images.unsplash.com/photo-1497534446932-c925b458314e?auto=format&fit=crop&q=80&w=600" alt="Es Dawet Ayu" class="menu-img">
+                <div class="menu-info">
+                    <div class="menu-name">Es Dawet Ayu Gula Aren</div>
+                    <div class="menu-desc">Minuman segar perpaduan dawet kenyal, santan murni, dan legitnya sirup gula aren asli.</div>
+                    <div class="menu-footer">
+                        <div class="menu-price">Rp 8.000</div>
+                        <div class="quantity-control">
+                            <button class="qty-btn minus">-</button>
+                            <input type="text" class="qty-input" value="0" readonly>
+                            <button class="qty-btn plus">+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Menu 4: Minuman 2 -->
+            <div class="menu-card" data-id="4" data-name="Es Teh Manis Jumbo" data-price="5000">
+                <img src="https://images.unsplash.com/photo-1556881286-fc6915169721?auto=format&fit=crop&q=80&w=600" alt="Es Teh Manis Jumbo" class="menu-img">
+                <div class="menu-info">
+                    <div class="menu-name">Es Teh Manis Jumbo</div>
+                    <div class="menu-desc">Kesegaran teh pilihan yang diseduh langsung dengan wangi khas dan porsi jumbo.</div>
+                    <div class="menu-footer">
+                        <div class="menu-price">Rp 5.000</div>
+                        <div class="quantity-control">
+                            <button class="qty-btn minus">-</button>
+                            <input type="text" class="qty-input" value="0" readonly>
+                            <button class="qty-btn plus">+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Cart Bar -->
+    <div class="cart-bar">
+        <div class="cart-info">
+            <div class="total-items" id="total-items">Belum ada menu dipilih</div>
+            <div class="total-price" id="total-price">Rp 0</div>
+        </div>
+        <button class="btn-order-wa" id="btn-order-wa" disabled>Kirim Pesanan via WA</button>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 Warung Kuliner Nusantara. Semua Hak Dilindungi.</p>
+    </footer>
+
+    <script>
+        const cart = {};
+        const waNumber = "6283869712192";
+
+        document.querySelectorAll('.menu-card').forEach(card => {
+            const id = card.getAttribute('data-id');
+            const name = card.getAttribute('data-name');
+            const price = parseInt(card.getAttribute('data-price'));
+            
+            const minusBtn = card.querySelector('.minus');
+            const plusBtn = card.querySelector('.plus');
+            const qtyInput = card.querySelector('.qty-input');
+
+            plusBtn.addEventListener('click', () => {
+                let currentQty = parseInt(qtyInput.value);
+                currentQty++;
+                qtyInput.value = currentQty;
+                
+                cart[id] = { name, price, qty: currentQty };
+                updateCartVisuals();
+            });
+
+            minusBtn.addEventListener('click', () => {
+                let currentQty = parseInt(qtyInput.value);
+                if (currentQty > 0) {
+                    currentQty--;
+                    qtyInput.value = currentQty;
+                    
+                    if (currentQty === 0) {
+                        delete cart[id];
+                    } else {
+                        cart[id].qty = currentQty;
+                    }
+                    updateCartVisuals();
+                }
+            });
+        });
+
+        function updateCartVisuals() {
+            let totalItems = 0;
+            let totalPrice = 0;
+
+            for (const id in cart) {
+                totalItems += cart[id].qty;
+                totalPrice += cart[id].price * cart[id].qty;
+            }
+
+            const totalItemsText = document.getElementById('total-items');
+            const totalPriceText = document.getElementById('total-price');
+            const orderBtn = document.getElementById('btn-order-wa');
+
+            if (totalItems > 0) {
+                totalItemsText.innerText = `${totalItems} item dipilih`;
+                totalPriceText.innerText = `Rp ${totalPrice.toLocaleString('id-ID')}`;
+                orderBtn.removeAttribute('disabled');
+            } else {
+                totalItemsText.innerText = "Belum ada menu dipilih";
+                totalPriceText.innerText = "Rp 0";
+                orderBtn.setAttribute('disabled', 'true');
+            }
+        }
+
+        document.getElementById('btn-order-wa').addEventListener('click', () => {
+            let textPesanan = "Halo Warung Kuliner, saya ingin memesan:\n\n";
+            let grandTotal = 0;
+
+            for (const id in cart) {
+                const item = cart[id];
+                const subtotal = item.price * item.qty;
+                textPesanan += `- ${item.name} (x${item.qty}) = Rp ${subtotal.toLocaleString('id-ID')}\n`;
+                grandTotal += subtotal;
+            }
+
+            textPesanan += `\n*Total Keseluruhan: Rp ${grandTotal.toLocaleString('id-ID')}*`;
+            
+            // Encode teks agar aman untuk URL WhatsApp
+            const urlEncodedText = encodeURIComponent(textPesanan);
+            window.open(`https://wa.me/${waNumber}?text=${urlEncodedText}`, '_blank');
+        });
+    </script>
+</body>
+</html>
